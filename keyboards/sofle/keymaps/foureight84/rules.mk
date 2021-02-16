@@ -27,7 +27,7 @@ ifeq ($(strip $(PIMORONI_TRACKBALL_ENABLE)), yes)
 	QUANTUM_LIB_SRC += transport.c serial.c i2c_master.c i2c_slave.c
 endif
 
-ifneq ($(PROMICRO), yes)
+ifeq ($(PROMICRO), yes)
   BOOTLOADER = caterina
 else ifeq ($(ELITEC), yes)
   BOOTLOADER = atmel-dfu
