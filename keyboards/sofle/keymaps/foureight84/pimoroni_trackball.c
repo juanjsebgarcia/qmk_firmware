@@ -1,49 +1,131 @@
-/* Copyright 2020 Christopher Courtney, aka Drashna Jael're  (@drashna) <drashna@live.com>
- *
- * This program is free software: you can redistribute it and/or modify
- * it under the terms of the GNU General Public License as published by
- * the Free Software Foundation, either version 2 of the License, or
- * (at your option) any later version.
- *
- * This program is distributed in the hope that it will be useful,
- * but WITHOUT ANY WARRANTY; without even the implied warranty of
- * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
- * GNU General Public License for more details.
- *
- * You should have received a copy of the GNU General Public License
- * along with this program.  If not, see <http://www.gnu.org/licenses/>.
- */
-
 #include "pimoroni_trackball.h"
 #include "i2c_master.h"
-#include "print.h"
 
-static uint8_t scrolling      = 0;
-static int16_t x_offset       = 0;
-static int16_t y_offset       = 0;
-static int16_t h_offset       = 0;
-static int16_t v_offset       = 0;
-static float   precisionSpeed = 1;
+#ifndef TRACKBALL_NO_MATH
+#include "math.h"
+#   ifndef TRACKBALL_ANGLE_OFFSET
+#   define TRACKBALL_ANGLE_OFFSET 0
+#   endif
+#endif
 
-#ifndef I2C_TIMEOUT
-#    define I2C_TIMEOUT 100
+#ifndef TRACKBALL_ORIENTATION
+#   define TRACKBALL_ORIENTATION 2
 #endif
-#ifndef MOUSE_DEBOUNCE
-#    define MOUSE_DEBOUNCE 5
+
+#ifndef TRACKBALL_TIMEOUT
+#   define TRACKBALL_TIMEOUT 5
 #endif
+void trackball_init(void) {
+    i2c_init();
+#ifdef TRACKBALL_INTERRUPT_PIN
+    setPinInput(TRACKBALL_INTERRUPT_PIN);
+    writePinLow(TRACKBALL_INTERRUPT_PIN);
+    uint8_t data[] = {REG_INTERRUPT_PIN, MASK_INTERRUPT_PIN_ENABLE};
+    i2c_transmit(TRACKBALL_WRITE, data, 2, TB_I2C_TIMEOUT);
+#endif
+}
+
+bool trackball_get_interrupt(void) {
+#ifndef TRACKBALL_INTERRUPT_PIN
+    uint8_t data[1] = {};
+    i2c_readReg(TRACKBALL_WRITE, REG_INTERRUPT_PIN, data, 1, TB_I2C_TIMEOUT);
+
+    return data[0] & MASK_INTERRUPT_TRIGGERED;
+#else
+    return !readPin(TRACKBALL_INTERRUPT_PIN);
+#endif
+}
 
 void trackball_set_rgbw(uint8_t red, uint8_t green, uint8_t blue, uint8_t white) {
     uint8_t data[] = {0x00, red, green, blue, white};
-    i2c_transmit(TRACKBALL_WRITE, data, sizeof(data), I2C_TIMEOUT);
+    i2c_transmit(TRACKBALL_WRITE, data, 5, TB_I2C_TIMEOUT);
 }
 
-int16_t mouse_offset(uint8_t positive, uint8_t negative, int16_t scale) {
-    int16_t offset    = (int16_t)positive - (int16_t)negative;
-    int16_t magnitude = (int16_t)(scale * offset * offset * precisionSpeed);
-    return offset < 0 ? -magnitude : magnitude;
+void trackball_read_state(uint8_t* data, uint16_t size_of_data) {
+    i2c_readReg(TRACKBALL_WRITE, REG_LEFT, data, size_of_data, TB_I2C_TIMEOUT);
 }
 
-void update_member(int8_t* member, int16_t* offset) {
+trackball_state_t trackball_get_state(void) {
+    // up down left right button
+    uint8_t s[5] = {};
+    trackball_read_state(s, 5);
+
+    trackball_state_t state = {
+#if TRACKBALL_ORIENTATION == 0
+        // Pimoroni text is up
+        .y = s[0] - s[1],
+        .x = s[3] - s[2],
+#elif TRACKBALL_ORIENTATION == 1
+        // Pimoroni text is right
+        .y = s[3] - s[2],
+        .x = s[1] - s[0],
+#elif TRACKBALL_ORIENTATION == 2
+        // Pimoroni text is down
+        .y = s[1] - s[0],
+        .x = s[2] - s[3],
+#else
+        // Pimoroni text is left
+        .y = s[2] - s[3],
+        .x = s[0] - s[1],
+#endif
+        .button_down = s[4] & 0x80,
+        .button_triggered = s[4] & 0x01,
+    };
+
+#ifndef TRACKBALL_NO_MATH
+    state.angle_rad = atan2(state.y, state.x) + TRACKBALL_ANGLE_OFFSET;
+    state.vector_length = sqrt(pow(state.x, 2) + pow(state.y, 2));
+    state.raw_x = state.x;
+    state.raw_y = state.y;
+    state.x = (int16_t)(state.vector_length * cos(state.angle_rad));
+    state.y = (int16_t)(state.vector_length * sin(state.angle_rad));
+#endif
+
+    return state;
+}
+
+void trackball_sleep(void) {
+    /* not sure how this is supposed to work */
+    uint8_t data[] = {REG_CTRL, MSK_CTRL_FWRITE | MSK_CTRL_SLEEP};
+    i2c_transmit(TRACKBALL_WRITE, data, 2, TB_I2C_TIMEOUT);
+}
+
+void trackball_set_brightness(uint8_t brightness) {
+    uint8_t data[4] = {};
+    i2c_readReg(TRACKBALL_WRITE, REG_RED, data, 4, TB_I2C_TIMEOUT);
+    for (int i=0; i<4; i++) {
+        if (data[i]) {
+            data[i] = brightness;
+        }
+    }
+    i2c_writeReg(TRACKBALL_WRITE, REG_RED, data, 4, TB_I2C_TIMEOUT);
+}
+
+#ifndef MIN
+#    define MIN(a, b) ((a) < (b) ? (a) : (b))
+#endif
+void trackball_set_hsv(uint8_t hue, uint8_t sat, uint8_t brightness) {
+    RGB rgb = hsv_to_rgb((HSV){hue, sat, brightness});
+    uint8_t white = MIN(rgb.r, MIN(rgb.g, rgb.b));
+    rgb.r -= white;
+    rgb.g -= white;
+    rgb.b -= white;
+
+    trackball_set_rgbw(rgb.r, rgb.g, rgb.b, white);
+}
+
+__attribute__((weak)) void pointing_device_init(void) {
+    if (!is_keyboard_left()) {
+        trackball_init();
+    }
+    trackball_set_rgbw(0,0,0,50);
+}
+
+__attribute__((weak)) void process_mouse_user(report_mouse_t* mouse_report, int16_t x, int16_t y) {
+    mouse_report->x = x;
+    mouse_report->y = y;
+}
+void update_member(int8_t* member, int16_t* offset) {//{{{
     if (*offset > 127) {
         *member = 127;
         *offset -= 127;
@@ -54,115 +136,77 @@ void update_member(int8_t* member, int16_t* offset) {
         *member = *offset;
         *offset = 0;
     }
+}//}}}
+
+static bool has_report_changed(report_mouse_t new, report_mouse_t old) {
+    return (new.buttons != old.buttons) ||
+           (new.x && new.x != old.x) ||
+           (new.y && new.y != old.y) ||
+           (new.h && new.h != old.h) ||
+           (new.v && new.v != old.v);
 }
 
-__attribute__((weak)) void process_mouse_user(report_mouse_t* mouse_report, int16_t x, int16_t y) {
-    mouse_report->x = x;
-    mouse_report->y = y;
-}
+static int16_t x_offset = 0;
+static int16_t y_offset = 0;
+static int16_t v_offset = 0;
+static int16_t h_offset = 0;
+static int16_t tb_timer = 0;
 
-__attribute__((weak)) void trackball_check_click(bool pressed, report_mouse_t* mouse) {
-    if (pressed) {
-        mouse->buttons |= MOUSE_BTN1;
-    } else {
-        mouse->buttons &= ~MOUSE_BTN1;
-    }
-}
+__attribute__((weak)) void process_mouse(report_mouse_t* mouse) {
+    static int8_t new_x_offset = 0;
+    static int8_t new_y_offset = 0;
+    static int8_t new_v_offset = 0;
+    static int8_t new_h_offset = 0;
+    if (trackball_get_interrupt() && (!tb_timer || timer_elapsed(tb_timer) > TRACKBALL_TIMEOUT)) {
+        tb_timer = timer_read() | 1;
+        // trigger_tapping();
+        // uint8_t mods = get_mods();
 
-void trackball_register_button(bool pressed, enum mouse_buttons button) {
-    report_mouse_t currentReport = pointing_device_get_report();
-    if (pressed) {
-        currentReport.buttons |= button;
-    } else {
-        currentReport.buttons &= ~button;
-    }
-    pointing_device_set_report(currentReport);
-}
+        trackball_state_t state = trackball_get_state();
 
-float trackball_get_precision(void) { return precisionSpeed; }
-void  trackball_set_precision(float precision) { precisionSpeed = precision; }
-bool  trackball_is_scrolling(void) { return scrolling; }
-void  trackball_set_scrolling(bool scroll) { scrolling = scroll; }
-
-bool has_report_changed (report_mouse_t first, report_mouse_t second) {
-    return !(
-        (!first.buttons && first.buttons == second.buttons) &&
-        (!first.x && first.x == second.x) &&
-        (!first.y && first.y == second.y) &&
-        (!first.h && first.h == second.h) &&
-        (!first.v && first.v == second.v) );
-}
-
-
-__attribute__((weak)) void pointing_device_init(void) { trackball_set_rgbw(0x00, 0x00, 0x00, 0x4F); }
-
-void pointing_device_task(void) {
-    static bool     debounce;
-    static uint16_t debounce_timer;
-    uint8_t         state[5] = {};
-    if (i2c_readReg(TRACKBALL_WRITE, 0x04, state, 5, I2C_TIMEOUT) == I2C_STATUS_SUCCESS) {
-        if (!state[4] && !debounce) {
-            if (scrolling) {
-#ifdef PIMORONI_TRACKBALL_INVERT_X
-                h_offset += mouse_offset(state[2], state[3], 1);
-#else
-                h_offset -= mouse_offset(state[2], state[3], 1);
-#endif
-#ifdef PIMORONI_TRACKBALL_INVERT_Y
-                v_offset += mouse_offset(state[1], state[0], 1);
-#else
-                v_offset -= mouse_offset(state[1], state[0], 1);
-#endif
+        if (state.button_triggered) {
+            if(state.button_down) {
+                mouse->buttons |= MOUSE_BTN1;
             } else {
-#ifdef PIMORONI_TRACKBALL_INVERT_X
-                x_offset -= mouse_offset(state[2], state[3], 5);
-#else
-                x_offset += mouse_offset(state[2], state[3], 5);
-#endif
-#ifdef PIMORONI_TRACKBALL_INVERT_Y
-                y_offset -= mouse_offset(state[1], state[0], 5);
-#else
-                y_offset += mouse_offset(state[1], state[0], 5);
-#endif
+                mouse->buttons &= ~MOUSE_BTN1;
             }
         } else {
-            if (state[4]) {
-                debounce       = true;
-                debounce_timer = timer_read();
-            }
+            float power = 2.5;
+            double newlen = pow(state.vector_length, power);
+            x_offset += (newlen * cos(state.angle_rad));
+            y_offset += (newlen * sin(state.angle_rad));
         }
+
     }
 
-    if (timer_elapsed(debounce_timer) > MOUSE_DEBOUNCE) debounce = false;
+    while (x_offset || y_offset || h_offset || v_offset) {
+        update_member(&new_x_offset, &x_offset);
+        update_member(&new_y_offset, &y_offset);
 
-    report_mouse_t mouse = pointing_device_get_report();
+        update_member(&new_v_offset, &v_offset);
+        update_member(&new_h_offset, &h_offset);
 
-    trackball_check_click(state[4] & (1 << 7), &mouse);
-
-#ifndef PIMORONI_TRACKBALL_ROTATE
-    update_member(&mouse.x, &x_offset);
-    update_member(&mouse.y, &y_offset);
-    update_member(&mouse.h, &h_offset);
-    update_member(&mouse.v, &v_offset);
-#else
-    update_member(&mouse.x, &y_offset);
-    update_member(&mouse.y, &x_offset);
-    update_member(&mouse.h, &v_offset);
-    update_member(&mouse.v, &h_offset);
-#endif
-    pointing_device_set_report(mouse);
-    if (has_report_changed(mouse, pointing_device_get_report())) {
-        pointing_device_send();
+        mouse->x = new_x_offset;
+        mouse->y = new_y_offset;
+        mouse->v = new_v_offset;
+        mouse->h = new_h_offset;
     }
+}
+
+void pointing_device_task() {
+    report_mouse_t mouse_report = pointing_device_get_report();
+    if (!is_keyboard_left()) {
+        process_mouse(&mouse_report);
+    }
+
+    pointing_device_set_report(mouse_report);
+    pointing_device_send();
 }
 
 void pointing_device_send(void) {
     static report_mouse_t old_report = {};
     report_mouse_t mouseReport = pointing_device_get_report();
-    if (is_keyboard_master()) {
-    #ifdef CONSOLE_ENABLE
-        uprintf("left");
-    #endif
+    if (is_keyboard_left()) {
         int8_t x = mouseReport.x, y = mouseReport.y;
         mouseReport.x = 0;
         mouseReport.y = 0;
@@ -171,9 +215,6 @@ void pointing_device_send(void) {
             host_mouse_send(&mouseReport);
         }
     } else {
-    #ifdef CONSOLE_ENABLE
-        uprintf("right");
-    #endif
         master_mouse_send(mouseReport.x, mouseReport.y);
     }
     mouseReport.x = 0;
