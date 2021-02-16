@@ -70,4 +70,4 @@ void process_mouse(report_mouse_t* mouse);
 void pointing_device_task(void);
 void pointing_device_send(void);
 
-void master_mouse_send(int8_t x, int8_t y);
+void master_mouse_send(int8_t x, int8_t y, uint8_t mouse_buttons);

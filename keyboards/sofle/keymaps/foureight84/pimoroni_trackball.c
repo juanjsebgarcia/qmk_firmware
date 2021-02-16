@@ -209,7 +209,7 @@ __attribute__((weak)) void pointing_device_send(void) {
             host_mouse_send(&mouseReport);
         }
     } else {
-        master_mouse_send(mouseReport.x, mouseReport.y);
+        master_mouse_send(mouseReport.x, mouseReport.y, mouseReport.buttons);
     }
     mouseReport.x = 0;
     mouseReport.y = 0;
