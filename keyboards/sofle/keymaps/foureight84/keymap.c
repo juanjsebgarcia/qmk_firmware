@@ -138,6 +138,35 @@ const uint16_t PROGMEM keymaps[][MATRIX_ROWS][MATRIX_COLS] = {
   )
 };
 
+#ifdef PIMORONI_TRACKBALL_ENABLE
+void pointing_device_init(void) {
+    trackball_set_rgbw(0,0,0,50);
+}
+
+void pointing_device_task() {
+    report_mouse_t mouse_report = pointing_device_get_report();
+    if (!is_keyboard_left() || !is_keyboard_master()) {
+        process_mouse(&mouse_report);
+    }
+
+    if (layer_state_is(_COLEMAK) || layer_state_is(_QWERTY)) {
+        trackball_set_rgbw(0,0,0,70);
+    } else if (layer_state_is(_RAISE)) {
+        trackball_set_rgbw(46,117,73,0);
+    } else if (layer_state_is(_LOWER)) {
+        trackball_set_rgbw(117,87,46,0);
+    } else if (layer_state_is(_ADJUST)) {
+        trackball_set_rgbw(117,46,111,0);
+    } else {
+        trackball_set_rgbw(0,0,0,70);
+    }
+
+    pointing_device_set_report(mouse_report);
+    pointing_device_send();
+}
+
+#endif
+
 #ifdef OLED_DRIVER_ENABLE
 
 static void render_logo(void) {

@@ -12,9 +12,6 @@
 #   define TRACKBALL_ORIENTATION 2
 #endif
 
-#ifndef TRACKBALL_TIMEOUT
-#   define TRACKBALL_TIMEOUT 5
-#endif
 void trackball_init(void) {
     i2c_init();
 #ifdef TRACKBALL_INTERRUPT_PIN
@@ -122,7 +119,7 @@ __attribute__((weak)) void process_mouse_user(report_mouse_t* mouse_report, int1
     mouse_report->x = x;
     mouse_report->y = y;
 }
-void update_member(int8_t* member, int16_t* offset) {//{{{
+__attribute__((weak)) void update_member(int8_t* member, int16_t* offset) {
     if (*offset > 127) {
         *member = 127;
         *offset -= 127;
@@ -133,9 +130,9 @@ void update_member(int8_t* member, int16_t* offset) {//{{{
         *member = *offset;
         *offset = 0;
     }
-}//}}}
+}
 
-static bool has_report_changed(report_mouse_t new, report_mouse_t old) {
+__attribute__((weak)) bool has_report_changed(report_mouse_t new, report_mouse_t old) {
     return (new.buttons != old.buttons) ||
            (new.x && new.x != old.x) ||
            (new.y && new.y != old.y) ||
@@ -190,7 +187,7 @@ __attribute__((weak)) void process_mouse(report_mouse_t* mouse) {
     }
 }
 
-void pointing_device_task() {
+__attribute__((weak)) void pointing_device_task(void) {
     report_mouse_t mouse_report = pointing_device_get_report();
     if (!is_keyboard_left() || !is_keyboard_master()) {
         process_mouse(&mouse_report);
@@ -200,7 +197,7 @@ void pointing_device_task() {
     pointing_device_send();
 }
 
-void pointing_device_send(void) {
+__attribute__((weak)) void pointing_device_send(void) {
     static report_mouse_t old_report = {};
     report_mouse_t mouseReport = pointing_device_get_report();
     if (is_keyboard_left() || is_keyboard_master()) {

@@ -12,6 +12,10 @@
 #   define TRACKBALL_ANGLE_OFFSET 0
 #endif
 
+#ifndef TRACKBALL_TIMEOUT
+#   define TRACKBALL_TIMEOUT 5
+#endif
+
 #define TRACKBALL_WRITE ((TRACKBALL_ADDRESS << 1) | I2C_WRITE)
 #define TRACKBALL_READ  ((TRACKBALL_ADDRESS << 1) | I2C_READ)
 
@@ -57,5 +61,13 @@ void trackball_set_brightness(uint8_t brightness);
 void trackball_set_hsv(uint8_t hue, uint8_t sat, uint8_t brightness);
 
 trackball_state_t trackball_get_state(void);
+
+void pointing_device_init(void);
+void process_mouse_user(report_mouse_t* mouse_report, int16_t x, int16_t y);
+void update_member(int8_t* member, int16_t* offset);
+bool has_report_changed(report_mouse_t new, report_mouse_t old);
+void process_mouse(report_mouse_t* mouse);
+void pointing_device_task(void);
+void pointing_device_send(void);
 
 void master_mouse_send(int8_t x, int8_t y);

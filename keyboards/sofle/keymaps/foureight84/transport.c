@@ -150,6 +150,8 @@ typedef struct _Serial_m2s_buffer_t {
 #    ifdef WPM_ENABLE
     uint8_t current_wpm;
 #    endif
+    layer_state_t t_layer_state;
+    layer_state_t t_default_layer_state;
 } Serial_m2s_buffer_t;
 
 #    if defined(RGBLIGHT_ENABLE) && defined(RGBLIGHT_SPLIT)
@@ -264,6 +266,8 @@ bool transport_master(matrix_row_t matrix[]) {
         pointing_device_set_report(temp_report);
     }
 #    endif
+    serial_m2s_buffer.t_layer_state           = layer_state;
+    serial_m2s_buffer.t_default_layer_state   = default_layer_state;
     return true;
 }
 
@@ -290,6 +294,13 @@ void transport_slave(matrix_row_t matrix[]) {
         serial_s2m_buffer.mouse_y = split_mouse_y;
     }
 #    endif
+
+    if (layer_state != serial_m2s_buffer.t_layer_state) {
+        layer_state = serial_m2s_buffer.t_layer_state;
+    }
+    if (default_layer_state != serial_m2s_buffer.t_default_layer_state) {
+        default_layer_state = serial_m2s_buffer.t_default_layer_state;
+    }
 }
 
 #endif
