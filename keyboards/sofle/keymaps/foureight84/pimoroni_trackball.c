@@ -206,7 +206,7 @@ void pointing_device_task() {
 void pointing_device_send(void) {
     static report_mouse_t old_report = {};
     report_mouse_t mouseReport = pointing_device_get_report();
-    if (is_keyboard_left()) {
+    if (is_keyboard_left() || is_keyboard_master()) {
         int8_t x = mouseReport.x, y = mouseReport.y;
         mouseReport.x = 0;
         mouseReport.y = 0;
