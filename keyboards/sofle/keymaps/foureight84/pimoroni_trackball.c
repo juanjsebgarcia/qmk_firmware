@@ -115,9 +115,6 @@ void trackball_set_hsv(uint8_t hue, uint8_t sat, uint8_t brightness) {
 }
 
 __attribute__((weak)) void pointing_device_init(void) {
-    if (!is_keyboard_left()) {
-        trackball_init();
-    }
     trackball_set_rgbw(0,0,0,50);
 }
 
@@ -195,7 +192,7 @@ __attribute__((weak)) void process_mouse(report_mouse_t* mouse) {
 
 void pointing_device_task() {
     report_mouse_t mouse_report = pointing_device_get_report();
-    if (!is_keyboard_left()) {
+    if (!is_keyboard_left() || !is_keyboard_master()) {
         process_mouse(&mouse_report);
     }
 
