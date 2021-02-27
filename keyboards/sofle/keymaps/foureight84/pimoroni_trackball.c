@@ -20,8 +20,6 @@
 #   define TRACKBALL_REVERSE_HSCROLL false
 #endif
 
-#include "print.h"
-
 bool scrolling = false;
 
 void trackball_init(void) {
@@ -92,8 +90,6 @@ trackball_state_t trackball_get_state(void) {
         .button_down = s[4] & 0x80,
         .button_triggered = s[4] & 0x01,
     };
-
-    uprintf("trackball orientation: %d\n", TRACKBALL_ORIENTATION);
 
 #ifndef TRACKBALL_NO_MATH
     state.angle_rad = atan2(state.y, state.x) + TRACKBALL_ANGLE_OFFSET;
