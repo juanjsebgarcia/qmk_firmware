@@ -6,3 +6,9 @@ for more options.
 */
 
 #define EE_HANDS
+
+/* clear default encoder def */
+#undef TAP_CODE_DELAY
+
+/* encoder support */
+#define TAP_CODE_DELAY 100
