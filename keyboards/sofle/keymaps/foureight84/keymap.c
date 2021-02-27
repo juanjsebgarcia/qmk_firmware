@@ -161,6 +161,12 @@ void pointing_device_task() {
         trackball_set_rgbw(0,0,0,70);
     }
 
+    if (layer_state_is(_LOWER)) {
+        trackball_set_scrolling(true);
+    } else {
+        trackball_set_scrolling(false);
+    }
+
     pointing_device_set_report(mouse_report);
     pointing_device_send();
 }

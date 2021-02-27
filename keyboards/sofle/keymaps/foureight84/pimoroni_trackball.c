@@ -12,6 +12,18 @@
 #   define TRACKBALL_ORIENTATION 2
 #endif
 
+#ifndef TRACKBALL_REVERSE_VSCROLL
+#   define TRACKBALL_REVERSE_VSCROLL false
+#endif
+
+#ifndef TRACKBALL_REVERSE_HSCROLL
+#   define TRACKBALL_REVERSE_HSCROLL false
+#endif
+
+#include "print.h"
+
+bool scrolling = false;
+
 void trackball_init(void) {
     i2c_init();
 #ifdef TRACKBALL_INTERRUPT_PIN
@@ -42,6 +54,10 @@ void trackball_read_state(uint8_t* data, uint16_t size_of_data) {
     i2c_readReg(TRACKBALL_WRITE, REG_LEFT, data, size_of_data, TB_I2C_TIMEOUT);
 }
 
+void trackball_set_scrolling(bool scroll) {
+    scrolling = scroll;
+}
+
 trackball_state_t trackball_get_state(void) {
     // up down left right button
     uint8_t s[5] = {};
@@ -52,30 +68,44 @@ trackball_state_t trackball_get_state(void) {
         // Pimoroni text is up
         .y = s[0] - s[1],
         .x = s[3] - s[2],
+        .v = s[0] - s[1],
+        .h = s[3] - s[2],
 #elif TRACKBALL_ORIENTATION == 1
         // Pimoroni text is right
         .y = s[3] - s[2],
         .x = s[1] - s[0],
+        .v = s[3] - s[2],
+        .h = s[1] - s[0],
 #elif TRACKBALL_ORIENTATION == 2
         // Pimoroni text is down
         .y = s[1] - s[0],
         .x = s[2] - s[3],
+        .v = s[1] - s[0],
+        .h = s[2] - s[3],
 #else
         // Pimoroni text is left
         .y = s[2] - s[3],
         .x = s[0] - s[1],
+        .v = s[2] - s[3],
+        .h = s[0] - s[1],
 #endif
         .button_down = s[4] & 0x80,
         .button_triggered = s[4] & 0x01,
     };
+
+    uprintf("trackball orientation: %d\n", TRACKBALL_ORIENTATION);
 
 #ifndef TRACKBALL_NO_MATH
     state.angle_rad = atan2(state.y, state.x) + TRACKBALL_ANGLE_OFFSET;
     state.vector_length = sqrt(pow(state.x, 2) + pow(state.y, 2));
     state.raw_x = state.x;
     state.raw_y = state.y;
+    state.raw_h = state.h;
+    state.raw_v = state.v;
     state.x = (int16_t)(state.vector_length * cos(state.angle_rad));
     state.y = (int16_t)(state.vector_length * sin(state.angle_rad));
+    state.h = (int16_t)(state.vector_length * cos(state.angle_rad));
+    state.v = (int16_t)(state.vector_length * sin(state.angle_rad));
 #endif
 
     return state;
@@ -115,9 +145,11 @@ __attribute__((weak)) void pointing_device_init(void) {
     trackball_set_rgbw(0,0,0,50);
 }
 
-__attribute__((weak)) void process_mouse_user(report_mouse_t* mouse_report, int16_t x, int16_t y) {
+__attribute__((weak)) void process_mouse_user(report_mouse_t* mouse_report, int16_t x, int16_t y, int16_t h, int16_t v) {
     mouse_report->x = x;
     mouse_report->y = y;
+    mouse_report->h = h;
+    mouse_report->v = v;
 }
 __attribute__((weak)) void update_member(int8_t* member, int16_t* offset) {
     if (*offset > 127) {
@@ -169,6 +201,16 @@ __attribute__((weak)) void process_mouse(report_mouse_t* mouse) {
             double newlen = pow(state.vector_length, power);
             x_offset += (newlen * cos(state.angle_rad));
             y_offset += (newlen * sin(state.angle_rad));
+            #if TRACKBALL_REVERSE_VSCROLL == true
+            v_offset += (newlen * sin(state.angle_rad));
+            #else
+            v_offset -= (newlen * sin(state.angle_rad));
+            #endif
+            #if TRACKBALL_REVERSE_HSCROLL == true
+            h_offset -= (newlen * cos(state.angle_rad));
+            #else
+            h_offset += (newlen * cos(state.angle_rad));
+            #endif
         }
 
     }
@@ -201,15 +243,26 @@ __attribute__((weak)) void pointing_device_send(void) {
     static report_mouse_t old_report = {};
     report_mouse_t mouseReport = pointing_device_get_report();
     if (is_keyboard_left() || is_keyboard_master()) {
-        int8_t x = mouseReport.x, y = mouseReport.y;
+        int8_t x = mouseReport.x, y = mouseReport.y, h = mouseReport.h, v = mouseReport.v;
         mouseReport.x = 0;
         mouseReport.y = 0;
-        process_mouse_user(&mouseReport, x, y);
+        mouseReport.h = 0;
+        mouseReport.v = 0;
+        if (!scrolling) {
+            process_mouse_user(&mouseReport, x, y, 0, 0);
+        } else {
+            process_mouse_user(&mouseReport, 0, 0, h, v);
+        }
+
         if (has_report_changed(mouseReport, old_report)) {
             host_mouse_send(&mouseReport);
         }
     } else {
-        master_mouse_send(mouseReport.x, mouseReport.y, mouseReport.buttons);
+        if (!scrolling) {
+            master_mouse_send(mouseReport.x, mouseReport.y, 0, 0 , mouseReport.buttons);
+        } else {
+            master_mouse_send(0, 0, mouseReport.h, mouseReport.v , 0);
+        }
     }
     mouseReport.x = 0;
     mouseReport.y = 0;

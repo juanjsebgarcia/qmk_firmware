@@ -23,7 +23,7 @@ static pin_t encoders_pad[] = ENCODERS_PAD_A;
 
 #ifdef POINTING_DEVICE_ENABLE
 #   include "pointing_device.h"
-static int8_t   split_mouse_x = 0, split_mouse_y = 0;
+static int8_t   split_mouse_x = 0, split_mouse_y = 0, split_mouse_h = 0, split_mouse_v = 0;
 static uint8_t  split_mouse_buttons;
 #endif
 #if defined(USE_I2C)
@@ -142,6 +142,8 @@ typedef struct _Serial_s2m_buffer_t {
 #    endif
     int8_t       mouse_x;
     int8_t       mouse_y;
+    int8_t       mouse_h;
+    int8_t       mouse_v;
     uint8_t      mouse_buttons;
 } Serial_s2m_buffer_t;
 
@@ -265,6 +267,8 @@ bool transport_master(matrix_row_t matrix[]) {
         report_mouse_t temp_report = pointing_device_get_report();
         temp_report.x              = serial_s2m_buffer.mouse_x;
         temp_report.y              = serial_s2m_buffer.mouse_y;
+        temp_report.h              = serial_s2m_buffer.mouse_h;
+        temp_report.v              = serial_s2m_buffer.mouse_v;
         temp_report.buttons        = serial_s2m_buffer.mouse_buttons;
         pointing_device_set_report(temp_report);
     }
@@ -295,6 +299,8 @@ void transport_slave(matrix_row_t matrix[]) {
     if (!is_keyboard_left()) {
         serial_s2m_buffer.mouse_x = split_mouse_x;
         serial_s2m_buffer.mouse_y = split_mouse_y;
+        serial_s2m_buffer.mouse_h = split_mouse_h;
+        serial_s2m_buffer.mouse_v = split_mouse_v;
         serial_s2m_buffer.mouse_buttons = split_mouse_buttons;
     }
 #    endif
@@ -310,9 +316,11 @@ void transport_slave(matrix_row_t matrix[]) {
 #endif
 
 #ifdef POINTING_DEVICE_ENABLE
-void master_mouse_send(int8_t x, int8_t y, uint8_t buttons) {
+void master_mouse_send(int8_t x, int8_t y, int8_t h, int8_t v, uint8_t buttons) {
     split_mouse_x = x;
     split_mouse_y = y;
+    split_mouse_h = h;
+    split_mouse_v = v;
     split_mouse_buttons = buttons;
 }
 #endif
