@@ -24,9 +24,12 @@ enum custom_keycodes {
     KC_LSTRT,
     KC_LEND,
     KC_DLINE,
-    KC_MOUSE
+    KC_MOUSE,
+    KC_MOUSE_BTN1,
+    KC_MOUSE_BTN2
 };
 
+uint8_t MOUSE_BUTTONS;
 
 const uint16_t PROGMEM keymaps[][MATRIX_ROWS][MATRIX_COLS] = {
 /*
@@ -155,7 +158,7 @@ const uint16_t PROGMEM keymaps[][MATRIX_ROWS][MATRIX_COLS] = {
   [_MOUSE] = LAYOUT( \
   XXXXXXX , XXXXXXX, XXXXXXX, XXXXXXX, XXXXXXX, XXXXXXX,                     XXXXXXX, XXXXXXX, XXXXXXX, XXXXXXX, XXXXXXX, XXXXXXX, \
   XXXXXXX , XXXXXXX, XXXXXXX, XXXXXXX, XXXXXXX, XXXXXXX,                     XXXXXXX, XXXXXXX, XXXXXXX, XXXXXXX, XXXXXXX, XXXXXXX, \
-  XXXXXXX , XXXXXXX, XXXXXXX, XXXXXXX, XXXXXXX, XXXXXXX,                     KC_BTN1, KC_BTN2, XXXXXXX, XXXXXXX, XXXXXXX, XXXXXXX, \
+  XXXXXXX , XXXXXXX, XXXXXXX, XXXXXXX, XXXXXXX, XXXXXXX,                     KC_MOUSE_BTN1, KC_MOUSE_BTN2, XXXXXXX, XXXXXXX, XXXXXXX, XXXXXXX, \
   XXXXXXX , XXXXXXX, XXXXXXX, XXXXXXX, XXXXXXX, XXXXXXX, XXXXXXX,    XXXXXXX,XXXXXXX, XXXXXXX, XXXXXXX, XXXXXXX, XXXXXXX, XXXXXXX, \
                    _______, _______, _______, _______, _______,     _______, _______, _______, _______, _______ \
   )
@@ -168,6 +171,11 @@ void pointing_device_init(void) {
 
 void pointing_device_task() {
     report_mouse_t mouse_report = pointing_device_get_report();
+
+    if (layer_state_is(_MOUSE)) {
+        mouse_report.buttons = MOUSE_BUTTONS;
+    }
+
     if (!is_keyboard_left() || !is_keyboard_master()) {
         process_mouse(&mouse_report);
     }
@@ -451,6 +459,20 @@ bool process_record_user(uint16_t keycode, keyrecord_t *record) {
             } else {
                 unregister_mods(mod_config(MOD_LCTL));
                 unregister_code(KC_Z);
+            }
+            return false;
+        case KC_MOUSE_BTN1:
+            if (record->event.pressed) {
+                MOUSE_BUTTONS |= (1 << 0);
+            } else {
+                MOUSE_BUTTONS &= ~(1 << 0);
+            }
+            return false;
+        case KC_MOUSE_BTN2:
+            if (record->event.pressed) {
+                MOUSE_BUTTONS |= (1 << 1);
+            } else {
+                MOUSE_BUTTONS &= ~(1 << 1);
             }
             return false;
     }
