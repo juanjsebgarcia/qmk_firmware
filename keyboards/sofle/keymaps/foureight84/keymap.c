@@ -172,16 +172,25 @@ void pointing_device_task() {
         process_mouse(&mouse_report);
     }
 
-    if (layer_state_is(_COLEMAK) || layer_state_is(_QWERTY)) {
-        trackball_set_rgbw(0,0,0,70);
-    } else if (layer_state_is(_RAISE)) {
-        trackball_set_rgbw(46,117,73,0);
-    } else if (layer_state_is(_LOWER)) {
-        trackball_set_rgbw(117,87,46,0);
-    } else if (layer_state_is(_ADJUST)) {
-        trackball_set_rgbw(117,46,111,0);
-    } else {
-        trackball_set_rgbw(0,0,0,70);
+    switch (get_highest_layer(layer_state)) {
+        case _COLEMAK:
+        case _QWERTY:
+            trackball_set_rgbw(0,0,0,70);
+            break;
+        case _RAISE:
+            trackball_set_rgbw(46,117,73,0);
+            break;
+        case _LOWER:
+             trackball_set_rgbw(117,87,46,0);
+            break;
+        case _ADJUST:
+            trackball_set_rgbw(117,46,103,0);
+            break;
+        case _MOUSE:
+            trackball_set_rgbw(46,85,117,0);
+            break;
+        default:
+            trackball_set_rgbw(0,0,0,70);
     }
 
     if (layer_state_is(_LOWER)) {
