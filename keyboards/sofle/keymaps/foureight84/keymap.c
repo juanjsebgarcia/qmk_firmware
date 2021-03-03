@@ -30,6 +30,7 @@ enum custom_keycodes {
 };
 
 uint8_t MOUSE_BUTTONS;
+uint16_t trackball_led_timer;
 
 const uint16_t PROGMEM keymaps[][MATRIX_ROWS][MATRIX_COLS] = {
 /*
@@ -165,10 +166,6 @@ const uint16_t PROGMEM keymaps[][MATRIX_ROWS][MATRIX_COLS] = {
 };
 
 #ifdef PIMORONI_TRACKBALL_ENABLE
-void pointing_device_init(void) {
-    trackball_set_rgbw(0,0,0,50);
-}
-
 void pointing_device_task() {
     report_mouse_t mouse_report = pointing_device_get_report();
 
@@ -176,30 +173,34 @@ void pointing_device_task() {
         mouse_report.buttons = MOUSE_BUTTONS;
     }
 
+    trackball_set_timed_rgbw(0,0,0,80);
+
     if (!is_keyboard_left() || !is_keyboard_master()) {
         process_mouse(&mouse_report);
     }
 
+
     switch (get_highest_layer(layer_state)) {
         case _COLEMAK:
         case _QWERTY:
-            trackball_set_rgbw(0,0,0,70);
+            trackball_set_timed_rgbw(0,0,0,80);
             break;
         case _RAISE:
-            trackball_set_rgbw(46,117,73,0);
+            trackball_set_rgbw(0,153,95,0);
             break;
         case _LOWER:
-             trackball_set_rgbw(117,87,46,0);
+             trackball_set_rgbw(153,113,0,0);
             break;
         case _ADJUST:
-            trackball_set_rgbw(117,46,103,0);
+            trackball_set_rgbw(153,0,110,0);
             break;
         case _MOUSE:
-            trackball_set_rgbw(46,85,117,0);
+            trackball_set_rgbw(0,73,153,0);
             break;
         default:
-            trackball_set_rgbw(0,0,0,70);
+            trackball_set_timed_rgbw(0,0,0,80);
     }
+
 
     if (layer_state_is(_LOWER)) {
         trackball_set_scrolling(true);

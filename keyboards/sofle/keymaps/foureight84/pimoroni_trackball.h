@@ -59,6 +59,7 @@ typedef struct {
 void trackball_init(void);
 bool trackball_get_interrupt(void);
 void trackball_set_rgbw(uint8_t r, uint8_t g, uint8_t b, uint8_t w);
+void trackball_set_timed_rgbw(uint8_t r, uint8_t g, uint8_t b, uint8_t w);
 void trackball_read_state(uint8_t* data, uint16_t size_of_data);
 void trackball_sleep(void);
 void trackball_set_brightness(uint8_t brightness);

@@ -20,7 +20,13 @@
 #   define TRACKBALL_REVERSE_HSCROLL false
 #endif
 
+#ifndef TRACKBALL_LED_TIMEOUT
+#   define TRACKBALL_LED_TIMEOUT 3000
+#endif
+
 bool scrolling = false;
+bool trackball_idle = true;
+uint16_t trackball_led_timer;
 
 void trackball_init(void) {
     i2c_init();
@@ -54,6 +60,10 @@ void trackball_read_state(uint8_t* data, uint16_t size_of_data) {
 
 void trackball_set_scrolling(bool scroll) {
     scrolling = scroll;
+}
+
+bool trackball_led_timedout(uint16_t elapsed) {
+    return timer_elapsed(elapsed) > TRACKBALL_LED_TIMEOUT;
 }
 
 trackball_state_t trackball_get_state(void) {
@@ -137,8 +147,24 @@ void trackball_set_hsv(uint8_t hue, uint8_t sat, uint8_t brightness) {
     trackball_set_rgbw(rgb.r, rgb.g, rgb.b, white);
 }
 
+void trackball_set_timed_rgbw(uint8_t red, uint8_t green, uint8_t blue, uint8_t white) {
+    if (timer_elapsed(trackball_led_timer) > 0 && !trackball_led_timedout(trackball_led_timer)) {
+        trackball_set_rgbw(red,green,blue,white);
+    }
+
+    if (!trackball_idle) {
+        trackball_set_rgbw(red,green,blue,white);
+        trackball_led_timer = timer_read();
+    }
+
+    if (trackball_idle && trackball_led_timedout(trackball_led_timer)) {
+        trackball_led_timer = 0;
+        trackball_set_rgbw(0,0,0,0);
+    }
+}
+
 __attribute__((weak)) void pointing_device_init(void) {
-    trackball_set_rgbw(0,0,0,50);
+    trackball_set_rgbw(0,0,0,70);
 }
 
 __attribute__((weak)) void process_mouse_user(report_mouse_t* mouse_report, int16_t x, int16_t y, int16_t h, int16_t v) {
@@ -227,6 +253,9 @@ __attribute__((weak)) void process_mouse(report_mouse_t* mouse) {
 
 __attribute__((weak)) void pointing_device_task(void) {
     report_mouse_t mouse_report = pointing_device_get_report();
+
+    trackball_set_timed_rgbw(0,0,0,70);
+
     if (!is_keyboard_left() || !is_keyboard_master()) {
         process_mouse(&mouse_report);
     }
@@ -251,9 +280,18 @@ __attribute__((weak)) void pointing_device_send(void) {
         }
 
         if (has_report_changed(mouseReport, old_report)) {
+            trackball_idle = false;
             host_mouse_send(&mouseReport);
+        } else {
+            trackball_idle = true;
         }
     } else {
+        if (has_report_changed(mouseReport, old_report)) {
+            trackball_idle = false;
+        } else {
+            trackball_idle = true;
+        }
+
         if (!scrolling) {
             master_mouse_send(mouseReport.x, mouseReport.y, 0, 0 , mouseReport.buttons);
         } else {
