@@ -21,7 +21,7 @@
 #endif
 
 #ifndef TRACKBALL_LED_TIMEOUT
-#   define TRACKBALL_LED_TIMEOUT 3000
+#   define TRACKBALL_LED_TIMEOUT 3000 // 0 to ignore timeout
 #endif
 
 bool scrolling = false;
@@ -148,16 +148,14 @@ void trackball_set_hsv(uint8_t hue, uint8_t sat, uint8_t brightness) {
 }
 
 void trackball_set_timed_rgbw(uint8_t red, uint8_t green, uint8_t blue, uint8_t white) {
-    if (timer_elapsed(trackball_led_timer) > 0 && !trackball_led_timedout(trackball_led_timer)) {
+    if (TRACKBALL_LED_TIMEOUT == 0) {
+        return trackball_set_rgbw(red,green,blue,white);
+    } else if (timer_elapsed(trackball_led_timer) > 0 && !trackball_led_timedout(trackball_led_timer)) {
         trackball_set_rgbw(red,green,blue,white);
-    }
-
-    if (!trackball_idle) {
+    } else if (!trackball_idle) {
         trackball_set_rgbw(red,green,blue,white);
         trackball_led_timer = timer_read();
-    }
-
-    if (trackball_idle && trackball_led_timedout(trackball_led_timer)) {
+    } else if (trackball_idle && trackball_led_timedout(trackball_led_timer)) {
         trackball_led_timer = 0;
         trackball_set_rgbw(0,0,0,0);
     }
