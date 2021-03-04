@@ -26,6 +26,11 @@ static pin_t encoders_pad[] = ENCODERS_PAD_A;
 static int8_t   split_mouse_x = 0, split_mouse_y = 0, split_mouse_h = 0, split_mouse_v = 0;
 static uint8_t  split_mouse_buttons;
 #endif
+
+#ifdef OLED_DRIVER_ENABLE
+#    include "oled_driver.h"
+#endif
+
 #if defined(USE_I2C)
 
 #    include "i2c_master.h"
@@ -154,6 +159,9 @@ typedef struct _Serial_m2s_buffer_t {
 #    ifdef WPM_ENABLE
     uint8_t current_wpm;
 #    endif
+#    ifdef OLED_DRIVER_ENABLE
+    bool oled_on;
+#    endif
     layer_state_t t_layer_state;
     layer_state_t t_default_layer_state;
 } Serial_m2s_buffer_t;
@@ -273,6 +281,9 @@ bool transport_master(matrix_row_t matrix[]) {
         pointing_device_set_report(temp_report);
     }
 #    endif
+#    ifdef OLED_DRIVER_ENABLE
+    serial_m2s_buffer.oled_on = is_oled_on();
+#    endif
     serial_m2s_buffer.t_layer_state           = layer_state;
     serial_m2s_buffer.t_default_layer_state   = default_layer_state;
     return true;
@@ -302,6 +313,13 @@ void transport_slave(matrix_row_t matrix[]) {
         serial_s2m_buffer.mouse_h = split_mouse_h;
         serial_s2m_buffer.mouse_v = split_mouse_v;
         serial_s2m_buffer.mouse_buttons = split_mouse_buttons;
+    }
+#    endif
+#    ifdef OLED_DRIVER_ENABLE
+    if (serial_m2s_buffer.oled_on) {
+        oled_on();
+    } else {
+        oled_off();
     }
 #    endif
 
