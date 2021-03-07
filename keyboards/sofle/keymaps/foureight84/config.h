@@ -12,3 +12,12 @@ for more options.
 
 /* encoder support */
 #define TAP_CODE_DELAY 100
+
+#define NO_ACTION_TAPPING
+
+#ifndef NO_DEBUG
+#define NO_DEBUG
+#endif // !NO_DEBUG
+#if !defined(NO_PRINT) && !defined(CONSOLE_ENABLE)
+#define NO_PRINT
+#endif // !NO_PRINT

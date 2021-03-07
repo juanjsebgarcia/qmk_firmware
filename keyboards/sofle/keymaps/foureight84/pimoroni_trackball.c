@@ -24,6 +24,10 @@
 #   define TRACKBALL_LED_TIMEOUT 3000 // 0 to ignore timeout
 #endif
 
+#ifndef TRACKBALL_ACCELERATION_WINDOW
+#   define TRACKBALL_ACCELERATION_WINDOW 5000 // ms window to increase acceleration factor
+#endif
+
 bool scrolling = false;
 bool trackball_idle = true;
 uint16_t trackball_led_timer;
@@ -197,6 +201,7 @@ static int16_t y_offset = 0;
 static int16_t v_offset = 0;
 static int16_t h_offset = 0;
 static int16_t tb_timer = 0;
+uint16_t acceleration_timer = 0;
 
 __attribute__((weak)) void process_mouse(report_mouse_t* mouse) {
     static int8_t new_x_offset = 0;
@@ -217,8 +222,20 @@ __attribute__((weak)) void process_mouse(report_mouse_t* mouse) {
                 mouse->buttons &= ~MOUSE_BTN1;
             }
         } else {
-            float power = 2.5;
+            float power = 1.5;
+            float var_accel = 2; //acceleration factor
             double newlen = pow(state.vector_length, power);
+
+            if (state.vector_length > 4 && (timer_elapsed(acceleration_timer) == 0 || timer_elapsed(acceleration_timer) < TRACKBALL_ACCELERATION_WINDOW)) {
+                acceleration_timer = timer_read();
+                newlen += pow(state.vector_length*var_accel, power);;
+            } else {
+                acceleration_timer = timer_read();
+                newlen += pow(state.vector_length, power);
+            }
+
+            //newlen = pow(state.vector_length, power);
+
             x_offset += (newlen * cos(state.angle_rad));
             y_offset += (newlen * sin(state.angle_rad));
             #if TRACKBALL_REVERSE_VSCROLL == true
