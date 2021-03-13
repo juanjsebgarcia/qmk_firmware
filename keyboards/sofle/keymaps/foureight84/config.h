@@ -14,6 +14,7 @@ for more options.
 #define TAP_CODE_DELAY 100
 
 #define NO_ACTION_TAPPING
+#define NO_ACTION_ONESHOT
 
 #ifndef NO_DEBUG
 #define NO_DEBUG

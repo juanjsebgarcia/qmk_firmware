@@ -155,12 +155,12 @@ void trackball_set_timed_rgbw(uint8_t red, uint8_t green, uint8_t blue, uint8_t 
     if (TRACKBALL_LED_TIMEOUT == 0) {
         return trackball_set_rgbw(red,green,blue,white);
     } else if (timer_elapsed(trackball_led_timer) > 0 && !trackball_led_timedout(trackball_led_timer)) {
+        trackball_led_timer = timer_read();
         trackball_set_rgbw(red,green,blue,white);
     } else if (!trackball_idle) {
         trackball_set_rgbw(red,green,blue,white);
         trackball_led_timer = timer_read();
     } else if (trackball_idle && trackball_led_timedout(trackball_led_timer)) {
-        trackball_led_timer = 0;
         trackball_set_rgbw(0,0,0,0);
     }
 }
@@ -226,9 +226,9 @@ __attribute__((weak)) void process_mouse(report_mouse_t* mouse) {
             float var_accel = 2; //acceleration factor
             double newlen = pow(state.vector_length, power);
 
-            if (state.vector_length > 4 && (timer_elapsed(acceleration_timer) == 0 || timer_elapsed(acceleration_timer) < TRACKBALL_ACCELERATION_WINDOW)) {
+            if (state.vector_length > 2 && (timer_elapsed(acceleration_timer) == 0 || timer_elapsed(acceleration_timer) < TRACKBALL_ACCELERATION_WINDOW)) {
                 acceleration_timer = timer_read();
-                newlen += pow(state.vector_length*var_accel, power);;
+                newlen += pow(state.vector_length*var_accel, power);
             } else {
                 acceleration_timer = timer_read();
                 newlen += pow(state.vector_length, power);
