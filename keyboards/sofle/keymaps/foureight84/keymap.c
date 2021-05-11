@@ -624,9 +624,9 @@ void encoder_update_user(uint8_t index, bool clockwise) {
         case _QWERTY:
             if (index == 0) {
                 if (clockwise) {
-                    tap_code(KC_VOLD);
-                } else {
                     tap_code(KC_VOLU);
+                } else {
+                    tap_code(KC_VOLD);
                 }
             }
         break;
@@ -634,9 +634,35 @@ void encoder_update_user(uint8_t index, bool clockwise) {
         case _RAISE:
             if (index == 0) {
                 if (clockwise) {
-                    tap_code(KC_MPRV);
-                } else {
                     tap_code(KC_MNXT);
+                } else {
+                    tap_code(KC_MPRV);
+                }
+            }
+        break;
+
+        case _LOWER:
+            if (index == 0) {
+                if (clockwise) {
+                    register_code(KC_LCMD);
+                    register_code(KC_LSFT);
+                    tap_code(KC_Z);
+                    unregister_code(KC_LSFT);
+                    unregister_code(KC_LCMD);
+                } else {
+                    register_code(KC_LCMD);
+                    tap_code(KC_Z);
+                    unregister_code(KC_LCMD);
+                }
+            }
+        break;
+
+        case _MOUSE:
+            if (index == 0) {
+                if (clockwise) {
+                    tap_code(KC_BRIU);
+                } else {
+                    tap_code(KC_BRID);
                 }
             }
         break;
