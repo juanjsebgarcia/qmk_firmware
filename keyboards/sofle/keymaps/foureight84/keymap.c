@@ -179,7 +179,7 @@ void pointing_device_task() {
         mouse_report.buttons = MOUSE_BUTTONS;
     }
 
-    trackball_set_timed_rgbw(0,0,0,80);
+    trackball_set_timed_rgbw(0,0,0,100);
 
     if (!is_keyboard_left() || !is_keyboard_master()) {
         process_mouse(&mouse_report);
@@ -189,7 +189,7 @@ void pointing_device_task() {
     switch (get_highest_layer(layer_state)) {
         case _COLEMAK:
         case _QWERTY:
-            trackball_set_timed_rgbw(0,0,0,80);
+            trackball_set_timed_rgbw(0,0,0,100);
             break;
         case _RAISE:
             trackball_set_rgbw(0,153,95,0);
@@ -198,13 +198,13 @@ void pointing_device_task() {
              trackball_set_rgbw(153,113,0,0);
             break;
         case _ADJUST:
-            trackball_set_rgbw(153,0,110,0);
+            trackball_set_rgbw(237,0,20,0);
             break;
         case _MOUSE:
             trackball_set_rgbw(0,73,153,0);
             break;
         default:
-            trackball_set_timed_rgbw(0,0,0,80);
+            trackball_set_timed_rgbw(0,0,0,100);
     }
 
 
