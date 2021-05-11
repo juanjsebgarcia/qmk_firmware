@@ -295,9 +295,9 @@ oled_rotation_t oled_init_user(oled_rotation_t rotation) {
 // #define PREP_FRAMES 1 // uncomment if >1
 
 #define TAP_FRAMES 2
-#define TAP_SPEED 60 // above this wpm value typing animation to triggere
+#define TAP_SPEED 50 // above this wpm value typing animation to triggered
 
-#define ANIM_FRAME_DURATION 200 // how long each frame lasts in ms
+#define ANIM_FRAME_DURATION 150 // how long each frame lasts in ms
 // #define SLEEP_TIMER 60000 // should sleep after this period of 0 wpm, needs fixing
 #define ANIM_SIZE 320 // number of bytes in array, minimize for adequate firmware size, max is 1024
 
