@@ -179,12 +179,9 @@ void pointing_device_task() {
         mouse_report.buttons = MOUSE_BUTTONS;
     }
 
-    trackball_set_timed_rgbw(0,0,0,100);
-
     if (!is_keyboard_left() || !is_keyboard_master()) {
         process_mouse(&mouse_report);
     }
-
 
     switch (get_highest_layer(layer_state)) {
         case _COLEMAK:
