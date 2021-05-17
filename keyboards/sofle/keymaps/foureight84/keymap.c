@@ -25,6 +25,8 @@ enum custom_keycodes {
     KC_LOWER,
     KC_RAISE,
     KC_MACSLEEP,
+    KC_NAPP,
+    KC_NWIND,
     KC_ADJUST,
     KC_PRVWD,
     KC_NXTWD,
@@ -105,7 +107,7 @@ const uint16_t PROGMEM keymaps[][MATRIX_ROWS][MATRIX_COLS] = {
   KC_GRV,    KC_1,    KC_2,    KC_3,    KC_4,    KC_5,                       KC_6,    KC_7,    KC_8,    KC_9,    KC_0,  _______, \
   KC_MOUSE, KC_EXLM,   KC_AT, KC_HASH,  KC_DLR, KC_PERC,                       KC_CIRC, KC_AMPR, KC_ASTR, KC_LPRN, KC_RPRN, KC_PIPE, \
   _______,  KC_EQL, KC_MINS, KC_PLUS, KC_LCBR, KC_RCBR, KC_MPLY,       _______, KC_LBRC, KC_RBRC, KC_SCLN, KC_COLN, KC_BSLS, _______, \
-                       _______, _______, _______, _______, _______,       _______, _______, _______, _______, _______\
+                       _______, _______, _______, _______, _______,       KC_NWIND, _______, _______, _______, _______\
 ),
 /* RAISE
  * ,----------------------------------------.                    ,-----------------------------------------.
@@ -126,7 +128,7 @@ const uint16_t PROGMEM keymaps[][MATRIX_ROWS][MATRIX_COLS] = {
   _______,  KC_INS,  KC_PSCR,   KC_APP,  XXXXXXX, XXXXXXX,                        KC_PGUP, KC_PRVWD,   KC_UP, KC_NXTWD,KC_DLINE, KC_BSPC, \
   _______, KC_LALT,  KC_LCTL,  KC_LSFT,  XXXXXXX, KC_CAPS,                       KC_PGDN,  KC_LEFT, KC_DOWN, KC_RGHT,  KC_DEL, KC_BSPC, \
   _______,KC_UNDO, KC_CUT, KC_COPY, KC_PASTE, XXXXXXX,  KC_MACSLEEP,      _______,  XXXXXXX, KC_LSTRT, XXXXXXX, KC_LEND,   XXXXXXX, _______, \
-                         _______, _______, _______, _______, _______,       _______, _______, _______, _______, _______ \
+                         _______, _______, _______, _______, KC_NAPP,       _______, _______, _______, _______, _______ \
 ),
 /* ADJUST
  * ,-----------------------------------------.                    ,-----------------------------------------.
@@ -610,6 +612,28 @@ bool process_record_user(uint16_t keycode, keyrecord_t *record) {
                 unregister_code(KC_EJCT);
             }
             return false;
+
+        case KC_NAPP:
+            if (record->event.pressed) {
+                register_mods(mod_config(MOD_LGUI));
+                tap_code(KC_TAB);
+            } else {
+                unregister_mods(mod_config(MOD_LGUI));
+                unregister_code(KC_TAB);
+            }
+            return false;
+
+        case KC_NWIND:
+            if (record->event.pressed) {
+                register_mods(mod_config(MOD_LGUI));
+                tap_code(KC_GRV);
+            } else {
+                unregister_mods(mod_config(MOD_LGUI));
+                unregister_code(KC_GRV);
+            }
+            return false;
+
+
 
 
     }
