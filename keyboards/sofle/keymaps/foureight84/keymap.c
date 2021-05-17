@@ -24,6 +24,7 @@ enum custom_keycodes {
     KC_COLEMAK,
     KC_LOWER,
     KC_RAISE,
+    KC_MACSLEEP,
     KC_ADJUST,
     KC_PRVWD,
     KC_NXTWD,
@@ -597,6 +598,20 @@ bool process_record_user(uint16_t keycode, keyrecord_t *record) {
                 MOUSE_BUTTONS &= ~(1 << 1);
             }
             return false;
+
+        case KC_MACSLEEP:
+            if (record->event.pressed) {
+                register_mods(mod_config(MOD_LGUI));
+                register_mods(mod_config(MOD_LALT));
+                tap_code(KC_EJCT);
+            } else {
+                unregister_mods(mod_config(MOD_LGUI));
+                unregister_mods(mod_config(MOD_LALT));
+                unregister_code(KC_EJCT);
+            }
+            return false;
+
+
     }
     return true;
 }
