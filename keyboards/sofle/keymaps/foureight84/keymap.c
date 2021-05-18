@@ -282,7 +282,7 @@ oled_rotation_t oled_init_user(oled_rotation_t rotation) {
 #define TAP_SPEED 50 // above this wpm value typing animation to triggered
 
 #define ANIM_FRAME_DURATION 150 // how long each frame lasts in ms
-// #define SLEEP_TIMER 60000 // should sleep after this period of 0 wpm, needs fixing
+#define SLEEP_TIMER 60000 // should sleep after this period of 0 wpm, needs fixing
 #define ANIM_SIZE 320 // number of bytes in array, minimize for adequate firmware size, max is 1024
 
 uint32_t anim_timer = 0;
@@ -641,4 +641,3 @@ void encoder_update_user(uint8_t index, bool clockwise) {
 }
 
 #endif
-
