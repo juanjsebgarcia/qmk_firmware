@@ -210,8 +210,6 @@ __attribute__((weak)) void process_mouse(report_mouse_t* mouse) {
     static int8_t new_h_offset = 0;
     if (trackball_get_interrupt() && (!tb_timer || timer_elapsed(tb_timer) > TRACKBALL_TIMEOUT)) {
         tb_timer = timer_read() | 1;
-        // trigger_tapping();
-        // uint8_t mods = get_mods();
 
         trackball_state_t state = trackball_get_state();
 
