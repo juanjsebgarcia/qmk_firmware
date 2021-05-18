@@ -208,7 +208,7 @@ void pointing_device_task() {
     }
 
 
-    if (layer_state_is(_LOWER)) {
+    if (layer_state_is(_LOWER) || layer_state_is(_RAISE)) {
         trackball_set_scrolling(true);
     } else {
         trackball_set_scrolling(false);
