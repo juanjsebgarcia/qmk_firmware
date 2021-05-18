@@ -271,7 +271,7 @@ oled_rotation_t oled_init_user(oled_rotation_t rotation) {
     return OLED_ROTATION_270;
 }
 
-/* Animation bit by j-inc https://github.com/qmk/qmk_firmware/tree/master/keyboards/kyria/keymaps/j-inc */
+// Animation bit by j-inc
 // WPM-responsive animation stuff here
 #define IDLE_FRAMES 5
 #define IDLE_SPEED 40 // below this wpm value your animation will idle
@@ -291,9 +291,6 @@ uint8_t current_idle_frame = 0;
 // uint8_t current_prep_frame = 0; // uncomment if PREP_FRAMES >1
 uint8_t current_tap_frame = 0;
 
-// Implementation credit j-inc(/James Incandenza), pixelbenny, and obosob.
-// Bongo cat images changed and adapted for sofle keyboard oled size.
-// Original gif can be found here: https://www.pixilart.com/art/bongo-cat-bd2a8e9323aa705
 static void render_anim(void) {
     static const char PROGMEM idle[IDLE_FRAMES][ANIM_SIZE] = {
         {
