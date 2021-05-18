@@ -12,7 +12,7 @@ char wpm_str[4];
 enum sofle_layers {
     /* _M_XYZ = Mac Os, _W_XYZ = Win/Linux */
     _QWERTY,
-    _COLEMAK,
+    _COLEMAK_MOD_DHM,
     _LOWER,
     _RAISE,
     _ADJUST,
@@ -21,7 +21,7 @@ enum sofle_layers {
 
 enum custom_keycodes {
     KC_QWERTY = SAFE_RANGE,
-    KC_COLEMAK,
+    KC_COLEMAK_MOD_DHM,
     KC_LOWER,
     KC_RAISE,
     KC_MACSLEEP,
@@ -81,7 +81,7 @@ const uint16_t PROGMEM keymaps[][MATRIX_ROWS][MATRIX_COLS] = {
  *             `----------------------------------'           '------''---------------------------'
  */
 
-[_COLEMAK] = LAYOUT( \
+[_COLEMAK_MOD_DHM] = LAYOUT( \
   KC_GRV,   KC_1,   KC_2,    KC_3,    KC_4,    KC_5,                      KC_6,    KC_7,    KC_8,    KC_9,    KC_0,  KC_GRV, \
   KC_ESC,   KC_Q,   KC_W,    KC_F,    KC_P,    KC_G,                      KC_J,    KC_L,    KC_U,    KC_Y, KC_SCLN,  KC_BSPC, \
   KC_TAB,   KC_A,   KC_R,    KC_S,    KC_T,    KC_D,                      KC_H,    KC_N,    KC_E,    KC_I,    KC_O,  KC_QUOT, \
@@ -146,7 +146,7 @@ const uint16_t PROGMEM keymaps[][MATRIX_ROWS][MATRIX_COLS] = {
  */
   [_ADJUST] = LAYOUT( \
   XXXXXXX, XXXXXXX, XXXXXXX, XXXXXXX, XXXXXXX, XXXXXXX,                     XXXXXXX, XXXXXXX, XXXXXXX, XXXXXXX, XXXXXXX, XXXXXXX, \
-  RESET  , KC_QWERTY, KC_COLEMAK, XXXXXXX, XXXXXXX, XXXXXXX,                XXXXXXX, XXXXXXX, XXXXXXX, XXXXXXX, XXXXXXX, XXXXXXX, \
+  RESET  , KC_QWERTY, KC_COLEMAK_MOD_DHM, XXXXXXX, XXXXXXX, XXXXXXX,                XXXXXXX, XXXXXXX, XXXXXXX, XXXXXXX, XXXXXXX, XXXXXXX, \
   XXXXXXX, XXXXXXX, XXXXXXX, XXXXXXX, XXXXXXX, XXXXXXX,                     XXXXXXX, KC_VOLD, KC_MUTE, KC_VOLU, XXXXXXX, XXXXXXX, \
   XXXXXXX, XXXXXXX, XXXXXXX, XXXXXXX, XXXXXXX, XXXXXXX, XXXXXXX,     XXXXXXX, XXXXXXX, KC_MPRV, KC_MPLY, KC_MNXT, XXXXXXX, XXXXXXX, \
            _______, _______, _______, _______, _______,                      _______, _______, _______, _______, _______ \
@@ -187,7 +187,7 @@ void pointing_device_task() {
     }
 
     switch (get_highest_layer(layer_state)) {
-        case _COLEMAK:
+        case _COLEMAK_MOD_DHM:
             trackball_set_timed_rgbw(165,42,42,100);
             break;
         case _QWERTY:
@@ -235,7 +235,7 @@ static void print_status_narrow(void) {
         case _QWERTY:
             oled_write_ln_P(PSTR("Qwert"), false);
             break;
-        case _COLEMAK:
+        case _COLEMAK_MOD_DHM:
             oled_write_ln_P(PSTR("Colmk"), false);
             break;
         default:
@@ -245,7 +245,7 @@ static void print_status_narrow(void) {
     // Print current layer
     oled_write_ln_P(PSTR("LAYER"), false);
     switch (get_highest_layer(layer_state)) {
-        case _COLEMAK:
+        case _COLEMAK_MOD_DHM:
         case _QWERTY:
             oled_write_P(PSTR("Base\n"), false);
             break;
@@ -424,9 +424,9 @@ bool process_record_user(uint16_t keycode, keyrecord_t *record) {
                 set_single_persistent_default_layer(_QWERTY);
             }
             return false;
-        case KC_COLEMAK:
+        case KC_COLEMAK_MOD_DHM:
             if (record->event.pressed) {
-                set_single_persistent_default_layer(_COLEMAK);
+                set_single_persistent_default_layer(_COLEMAK_MOD_DHM);
             }
             return false;
         case KC_LOWER:
@@ -593,7 +593,7 @@ bool process_record_user(uint16_t keycode, keyrecord_t *record) {
 
 void encoder_update_user(uint8_t index, bool clockwise) {
     switch (get_highest_layer(layer_state)) {
-        case _COLEMAK:
+        case _COLEMAK_MOD_DHM:
         case _QWERTY:
             if (index == 0) {
                 if (clockwise) {
