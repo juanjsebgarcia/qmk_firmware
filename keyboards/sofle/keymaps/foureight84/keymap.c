@@ -188,6 +188,8 @@ void pointing_device_task() {
 
     switch (get_highest_layer(layer_state)) {
         case _COLEMAK:
+            trackball_set_timed_rgbw(165,42,42,100);
+            break;
         case _QWERTY:
             trackball_set_timed_rgbw(0,0,0,100);
             break;
