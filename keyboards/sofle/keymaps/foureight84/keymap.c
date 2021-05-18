@@ -227,7 +227,7 @@ static void print_status_narrow(void) {
     oled_write_P(PSTR("\n\n"), false);
     oled_write_ln_P(PSTR("JUAN"), false);
     oled_write_ln_P(PSTR(""), false);
-    oled_write_ln_P(PSTR("MAC"), false);
+    oled_write_ln_P(PSTR("macOS"), false);
 
     switch (get_highest_layer(default_layer_state)) {
         case _QWERTY:
