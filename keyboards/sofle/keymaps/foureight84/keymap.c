@@ -461,79 +461,82 @@ bool process_record_user(uint16_t keycode, keyrecord_t *record) {
             return false;
         case KC_PRVWD:
             if (record->event.pressed) {
-                register_mods(mod_config(MOD_LCTL));
+                register_mods(MOD_LALT);
                 register_code(KC_LEFT);
             } else {
-                unregister_mods(mod_config(MOD_LCTL));
+                unregister_mods(MOD_LALT);
                 unregister_code(KC_LEFT);
             }
-            break;
+            return false;
         case KC_NXTWD:
              if (record->event.pressed) {
-                register_mods(mod_config(MOD_LCTL));
+                register_mods(MOD_LALT);
                 register_code(KC_RIGHT);
             } else {
-                unregister_mods(mod_config(MOD_LCTL));
+                unregister_mods(MOD_LALT);
                 unregister_code(KC_RIGHT);
             }
-            break;
+            return false;
         case KC_LSTRT:
             if (record->event.pressed) {
-                register_code(KC_HOME);
+                register_mods(MOD_LGUI);
+                register_code(KC_LEFT);
             } else {
-                unregister_code(KC_HOME);
+                unregister_mods(MOD_LGUI);
+                unregister_code(KC_LEFT);
             }
-            break;
+            return false;
         case KC_LEND:
             if (record->event.pressed) {
-                register_code(KC_END);
+                register_mods(MOD_LGUI);
+                register_code(KC_RIGHT);
             } else {
-                unregister_code(KC_END);
+                unregister_mods(MOD_LGUI);
+                unregister_code(KC_RIGHT);
             }
-            break;
+            return false;
         case KC_DLINE:
             if (record->event.pressed) {
-                register_mods(mod_config(MOD_LCTL));
+                register_mods(MOD_LGUI);
                 register_code(KC_BSPC);
             } else {
-                unregister_mods(mod_config(MOD_LCTL));
+                unregister_mods(MOD_LGUI);
                 unregister_code(KC_BSPC);
             }
-            break;
+            return false;
         case KC_COPY:
             if (record->event.pressed) {
-                register_mods(mod_config(MOD_LCTL));
+                register_mods(MOD_LGUI);
                 register_code(KC_C);
             } else {
-                unregister_mods(mod_config(MOD_LCTL));
+                unregister_mods(MOD_LGUI);
                 unregister_code(KC_C);
             }
             return false;
         case KC_PASTE:
             if (record->event.pressed) {
-                register_mods(mod_config(MOD_LCTL));
+                register_mods(MOD_LGUI);
                 register_code(KC_V);
             } else {
-                unregister_mods(mod_config(MOD_LCTL));
+                unregister_mods(MOD_LGUI);
                 unregister_code(KC_V);
             }
             return false;
         case KC_CUT:
             if (record->event.pressed) {
-                register_mods(mod_config(MOD_LCTL));
+                register_mods(MOD_LGUI);
                 register_code(KC_X);
             } else {
-                unregister_mods(mod_config(MOD_LCTL));
+                unregister_mods(MOD_LGUI);
                 unregister_code(KC_X);
             }
             return false;
-            break;
         case KC_UNDO:
             if (record->event.pressed) {
-                register_mods(mod_config(MOD_LCTL));
+                register_mods(MOD_LGUI);
                 register_code(KC_Z);
             } else {
-                unregister_mods(mod_config(MOD_LCTL));
+                unregister_mods(MOD_LGUI);
                 unregister_code(KC_Z);
             }
             return false;
@@ -551,42 +554,35 @@ bool process_record_user(uint16_t keycode, keyrecord_t *record) {
                 MOUSE_BUTTONS &= ~(1 << 1);
             }
             return false;
-
         case KC_MACSLEEP:
             if (record->event.pressed) {
-                register_mods(mod_config(MOD_LGUI));
-                register_mods(mod_config(MOD_LALT));
+                register_mods(MOD_LGUI);
+                register_mods(MOD_LALT);
                 tap_code(KC_EJCT);
             } else {
-                unregister_mods(mod_config(MOD_LGUI));
-                unregister_mods(mod_config(MOD_LALT));
+                unregister_mods(MOD_LGUI);
+                unregister_mods(MOD_LALT);
                 unregister_code(KC_EJCT);
             }
             return false;
-
         case KC_NAPP:
             if (record->event.pressed) {
-                register_mods(mod_config(MOD_LGUI));
+                register_mods(MOD_LGUI);
                 tap_code(KC_TAB);
             } else {
-                unregister_mods(mod_config(MOD_LGUI));
+                unregister_mods(MOD_LGUI);
                 unregister_code(KC_TAB);
             }
             return false;
-
         case KC_NWIND:
             if (record->event.pressed) {
-                register_mods(mod_config(MOD_LGUI));
+                register_mods(MOD_LGUI);
                 tap_code(KC_GRV);
             } else {
-                unregister_mods(mod_config(MOD_LGUI));
+                unregister_mods(MOD_LGUI);
                 unregister_code(KC_GRV);
             }
             return false;
-
-
-
-
     }
     return true;
 }
