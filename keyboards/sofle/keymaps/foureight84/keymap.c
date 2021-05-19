@@ -1,12 +1,15 @@
 #include QMK_KEYBOARD_H
 #ifdef PIMORONI_TRACKBALL_ENABLE
+
 #include "pimoroni_trackball.h"
+
 #endif
 
 #ifdef OLED_DRIVER_ENABLE
-#include <stdio.h>
 
+#include <stdio.h>
 char wpm_str[4];
+
 #endif
 
 enum sofle_layers {
@@ -175,6 +178,7 @@ const uint16_t PROGMEM keymaps[][MATRIX_ROWS][MATRIX_COLS] = {
 };
 
 #ifdef PIMORONI_TRACKBALL_ENABLE
+
 void pointing_device_task() {
     report_mouse_t mouse_report = pointing_device_get_report();
 
@@ -542,20 +546,6 @@ bool process_record_user(uint16_t keycode, keyrecord_t *record) {
                 unregister_code(KC_Z);
             }
             return false;
-        case KC_MOUSE_BTN1:
-            if (record->event.pressed) {
-                MOUSE_BUTTONS |= (1 << 0);
-            } else {
-                MOUSE_BUTTONS &= ~(1 << 0);
-            }
-            return false;
-        case KC_MOUSE_BTN2:
-            if (record->event.pressed) {
-                MOUSE_BUTTONS |= (1 << 1);
-            } else {
-                MOUSE_BUTTONS &= ~(1 << 1);
-            }
-            return false;
         case KC_MACSLEEP:
             if (record->event.pressed) {
                 register_mods(MOD_LGUI);
@@ -585,6 +575,20 @@ bool process_record_user(uint16_t keycode, keyrecord_t *record) {
                 unregister_code(KC_GRV);
             }
             return false;
+        case KC_MOUSE_BTN1:
+            if (record->event.pressed) {
+                MOUSE_BUTTONS |= (1 << 0);
+            } else {
+                MOUSE_BUTTONS &= ~(1 << 0);
+            }
+            return false;
+        case KC_MOUSE_BTN2:
+            if (record->event.pressed) {
+                MOUSE_BUTTONS |= (1 << 1);
+            } else {
+                MOUSE_BUTTONS &= ~(1 << 1);
+            }
+            return false;
     }
     return true;
 }
@@ -602,8 +606,7 @@ void encoder_update_user(uint8_t index, bool clockwise) {
                     tap_code(KC_VOLD);
                 }
             }
-        break;
-
+            break;
         case _RAISE:
             if (index == 0) {
                 if (clockwise) {
@@ -618,8 +621,7 @@ void encoder_update_user(uint8_t index, bool clockwise) {
                     unregister_code(KC_LCMD);
                 }
             }
-        break;
-
+            break;
         case _LOWER:
             if (index == 0) {
                 if (clockwise) {
@@ -628,8 +630,7 @@ void encoder_update_user(uint8_t index, bool clockwise) {
                     tap_code(KC_MPRV);
                 }
             }
-        break;
-
+            break;
         case _MOUSE:
             if (index == 0) {
                 if (clockwise) {
@@ -638,7 +639,7 @@ void encoder_update_user(uint8_t index, bool clockwise) {
                     tap_code(KC_BRID);
                 }
             }
-        break;
+            break;
     }
 }
 
