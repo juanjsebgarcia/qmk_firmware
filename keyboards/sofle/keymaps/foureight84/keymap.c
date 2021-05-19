@@ -84,8 +84,8 @@ const uint16_t PROGMEM keymaps[][MATRIX_ROWS][MATRIX_COLS] = {
       KC_GRV,  KC_1,   KC_2,   KC_3,   KC_4,   KC_5,                              KC_6,   KC_7,   KC_8,    KC_9,   KC_0,    KC_BSPC, \
       KC_TAB,  KC_Q,   KC_W,   KC_F,   KC_P,   KC_B,                              KC_J,   KC_L,   KC_U,    KC_Y,   KC_SCLN, KC_BSLS, \
       KC_BSPC, KC_A,   KC_R,   KC_S,   KC_T,   KC_G,                              KC_M,   KC_N,   KC_E,    KC_I,   KC_O,    KC_QUOT, \
-      KC_LSFT, KC_Z,   KC_X,   KC_C,   KC_D,   KC_V,       KC_MUTE,      XXXXXXX, KC_K,   KC_H,   KC_COMM, KC_DOT, KC_SLSH, KC_RSFT, \
-                     KC_LCTRL, KC_LALT, KC_LGUI, KC_LOWER, KC_SPC,       KC_ENT,  KC_RAISE, KC_RGUI, KC_RALT, KC_RCTRL \
+      KC_LSFT, KC_Z,   KC_X,   KC_C,   KC_D,   KC_V, KC_MUTE,      XXXXXXX, KC_K,   KC_H,   KC_COMM, KC_DOT, KC_SLSH, KC_RSFT, \
+               KC_LCTRL, KC_LALT, KC_LGUI, KC_LOWER, KC_SPC,       KC_ENT,  KC_RAISE, KC_RGUI, KC_RALT, KC_RCTRL \
     ),
 
 /* LOWER
@@ -112,7 +112,7 @@ const uint16_t PROGMEM keymaps[][MATRIX_ROWS][MATRIX_COLS] = {
 
 /* RAISE
  * ,----------------------------------------.                    ,-----------------------------------------.
- * |  ESC |      |      |      |      |      |                    |      |      |      |      |      | DEL  |
+ * |  ESC | F13  | F14  | F15  | F16  | F17  |                    | F18  | F19  | F20  | F21  | F22  | DEL  |
  * |------+------+------+------+------+------|                    |------+------+------+------+------+------|
  * |      | INST | PSCR | MENU |      |      |                    | PGUP | PWRD |  UP  | NWRD | DLINE| BSPC |
  * |------+------+------+------+------+------|                    |------+------+------+------+------+------|
@@ -120,12 +120,12 @@ const uint16_t PROGMEM keymaps[][MATRIX_ROWS][MATRIX_COLS] = {
  * |------+------+------+------+------+------| SLEEP |    |       |------+------+------+------+------+------|
  * |      | UNDO | CUT  | COPY | PASTE|      |-------|    |-------|      | LSTR |      | LEND |      |      |
  * `-----------------------------------------/       /     \      \-----------------------------------------'
- *            |      |      |      |      | /NEXT   /       \      \  |      |      |      |      |
+ *            |      |      |      |      | / NEXT  /       \      \  |      |      |      |      |
  *            |      |      |      |      |/  APP  /         \      \ |      |      |      |      |
  *             `----------------------------------'           '------''---------------------------'
  */
     [_RAISE] = LAYOUT( \
-      KC_ESC,  _______, _______, _______, _______, _______,                           _______,  _______, _______, _______,  _______,  KC_DEL,  \
+      KC_ESC,  KC_F13,  KC_F14,  KC_F15,  KC_F16,   KC_F17,                           KC_F18,  KC_F19,   KC_F20,  KC_F21,   KC_F22,   KC_DEL,  \
       _______, KC_INS,  KC_PSCR, KC_APP,  XXXXXXX,  XXXXXXX,                          KC_PGUP, KC_PRVWD, KC_UP,   KC_NXTWD, KC_DLINE, KC_BSPC, \
       _______, KC_LALT, KC_LCTL, KC_LSFT, XXXXXXX,  KC_CAPS,                          KC_PGDN, KC_LEFT,  KC_DOWN, KC_RGHT,  KC_DEL,   KC_BSPC, \
       _______, KC_UNDO, KC_CUT,  KC_COPY, KC_PASTE, XXXXXXX, KC_MACSLEEP,   _______,  XXXXXXX, KC_LSTRT, XXXXXXX, KC_LEND,  XXXXXXX,  _______, \
