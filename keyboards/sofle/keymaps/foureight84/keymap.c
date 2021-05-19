@@ -1,15 +1,12 @@
 #include QMK_KEYBOARD_H
+
 #ifdef PIMORONI_TRACKBALL_ENABLE
-
 #include "pimoroni_trackball.h"
-
 #endif
 
 #ifdef OLED_DRIVER_ENABLE
-
 #include <stdio.h>
 char wpm_str[4];
-
 #endif
 
 enum sofle_layers {
@@ -262,7 +259,7 @@ static void print_status_narrow(void) {
             oled_write_P(PSTR("Lower"), false);
             break;
         case _ADJUST:
-            oled_write_P(PSTR("Adj\n"), false);
+            oled_write_P(PSTR("Adjst"), false);
             break;
         case _MOUSE:
             oled_write_P(PSTR("Mouse"), false);
