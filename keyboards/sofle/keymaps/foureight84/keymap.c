@@ -114,7 +114,7 @@ const uint16_t PROGMEM keymaps[][MATRIX_ROWS][MATRIX_COLS] = {
  * ,----------------------------------------.                    ,-----------------------------------------.
  * |  ESC | F13  | F14  | F15  | F16  | F17  |                    | F18  | F19  | F20  | F21  | F22  | DEL  |
  * |------+------+------+------+------+------|                    |------+------+------+------+------+------|
- * |      | INST | PSCR | MENU |      |      |                    | PGUP | PWRD |  UP  | NWRD | DLINE| BSPC |
+ * |  ~   | INST | PSCR | MENU |      |      |                    | PGUP | PWRD |  UP  | NWRD | DLINE| BSPC |
  * |------+------+------+------+------+------|                    |------+------+------+------+------+------|
  * |      | LALT | LCTL |LSHIFT|      | CAPS |-------.    ,-------| PGDN | LEFT | DOWN | RIGHT| DEL  | BSPC |
  * |------+------+------+------+------+------| SLEEP |    |       |------+------+------+------+------+------|
@@ -126,7 +126,7 @@ const uint16_t PROGMEM keymaps[][MATRIX_ROWS][MATRIX_COLS] = {
  */
     [_RAISE] = LAYOUT( \
       KC_ESC,  KC_F13,  KC_F14,  KC_F15,  KC_F16,   KC_F17,                           KC_F18,  KC_F19,   KC_F20,  KC_F21,   KC_F22,   KC_DEL,  \
-      _______, KC_INS,  KC_PSCR, KC_APP,  XXXXXXX,  XXXXXXX,                          KC_PGUP, KC_PRVWD, KC_UP,   KC_NXTWD, KC_DLINE, KC_BSPC, \
+      KC_TILDE, KC_INS, KC_PSCR, KC_APP,  XXXXXXX,  XXXXXXX,                          KC_PGUP, KC_PRVWD, KC_UP,   KC_NXTWD, KC_DLINE, KC_BSPC, \
       _______, KC_LALT, KC_LCTL, KC_LSFT, XXXXXXX,  KC_CAPS,                          KC_PGDN, KC_LEFT,  KC_DOWN, KC_RGHT,  KC_DEL,   KC_BSPC, \
       _______, KC_UNDO, KC_CUT,  KC_COPY, KC_PASTE, XXXXXXX, KC_MACSLEEP,    _______, XXXXXXX, KC_LSTRT, XXXXXXX, KC_LEND,  XXXXXXX,  _______, \
                         KC_LBRC, _______, _______, _______, KC_NAPP,        _______, _______, _______, _______, KC_RBRC \
